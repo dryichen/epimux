@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "epimux"
+version = "0.1.0"
+description = "Bulk epigenome integration anchored on genomic intervals, with a built-in audit layer"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "Yi Chen", email = "chenyi.med@gmail.com" }]
+keywords = ["epigenomics", "multi-omics", "ATAC-seq", "ChIP-seq", "Hi-C",
+            "WGBS", "differential", "reproducibility"]
+classifiers = [
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "numpy>=1.23",
+  "pandas>=1.5",
+  "scipy>=1.9",
+  "scikit-learn>=1.1",
+  "matplotlib>=3.6",
+  "pydeseq2>=0.4",
+]
+
+[project.optional-dependencies]
+hic = ["cooler>=0.9", "cooltools>=0.6", "bioframe>=0.4"]
+bigwig = ["pyBigWig>=0.3"]
+enrich = ["gseapy>=1.0"]
+all = ["cooler>=0.9", "cooltools>=0.6", "bioframe>=0.4", "pyBigWig>=0.3", "gseapy>=1.0"]
+dev = ["pytest>=7", "pytest-cov"]
+
+[project.scripts]
+epimux = "epimux.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/vinylab/epimux"
+Issues = "https://github.com/vinylab/epimux/issues"
+
+[tool.setuptools.packages.find]
+include = ["epimux*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::FutureWarning", "ignore::DeprecationWarning"]

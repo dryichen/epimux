@@ -1,0 +1,31 @@
+# epimux study definition -- reproducible from the shell:
+#     epimux audit --config stag2_study.yaml
+#     epimux run   --config stag2_study.yaml --out results/
+name: STAG2 LSK
+genome: mm10
+reference: data/enh.bed
+
+assays:
+  ATAC:
+    type: counts
+    path: data/atac_rawcounts.txt
+  H3K27ac:
+    type: counts
+    path: data/h3k_counts.txt
+
+design:
+  WT:  [LSK_WT_REP1, LSK_WT_REP2, LSK_WT_REP3, LSK_WT_R1, LSK_WT_R2, LSK_WT_R3]
+  KO:  [LSK_KO_REP1, LSK_KO_REP2, LSK_KO_REP3, LSK_KO_R1, LSK_KO_R2, LSK_KO_R3]
+  GMP: [GMP_WT_REP1, GMP_WT_REP2, GMP_WT_R1, GMP_WT_R2, GMP_WT_R3]
+
+contrast:
+  ref: WT
+  test: KO
+
+audit:
+  positive_control: [WT, GMP]   # a comparison that MUST differ
+  null_group: WT                # replicates split against each other
+
+thresholds:
+  fc: 1.5
+  fdr: 0.1
