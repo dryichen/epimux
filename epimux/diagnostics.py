@@ -59,8 +59,12 @@ def outlier_replicates(values: pd.DataFrame, groups: dict,
         M = M[ok]
         if M.shape[0] < 50:
             continue
-        C = (pd.DataFrame(M, columns=samples).corr(method=method).to_numpy()
-             if method == "spearman" else np.corrcoef(M.T))
+        # .to_numpy() can return a read-only view on newer pandas/numpy, and
+        # np.corrcoef output is not guaranteed writable either -- copy before
+        # touching the diagonal.
+        C = np.array(pd.DataFrame(M, columns=samples).corr(method=method).to_numpy()
+                     if method == "spearman" else np.corrcoef(M.T),
+                     dtype=float, copy=True)
         np.fill_diagonal(C, np.nan)
         mean_r = np.nanmean(C, axis=1)
         n = len(samples)
