@@ -72,3 +72,7 @@ First release.
   actually mean by "is the effect the same in A and B?"), `concordance_summary`
   (how much of an apparent difference is power rather than biology),
   `meta_analyse` with Cochran's Q, `replication_rate`.
+- Documentation: `docs/api.md` (auto-generated, 102 entries), plus guides for
+  input formats, reading the audit, choosing a normalisation, Hi-C analyses and
+  the CLI, and a troubleshooting FAQ. README expanded with worked examples for
+  every module. All documented APIs are verified to exist.
