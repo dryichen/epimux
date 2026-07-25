@@ -37,6 +37,8 @@ from .io import (export_bed, export_results, load_results, save_dataset,
 from .peaks import (consensus_peaks, jaccard, merge_intervals, peak_overlap_matrix,
                     read_narrowpeak, saf_from_intervals)
 from .linking import abc_link, aggregate_to_genes, nearest_gene
+from .meta import (compare_contrasts, concordance_summary, meta_analyse,
+                   replication_rate)
 from .modules import find_modules, module_enrichment, module_profile
 from .annotation import (annotate_tss, classify_context, context_composition,
                          distance_enrichment, stitch_super_enhancers)
@@ -74,6 +76,8 @@ __all__ = [
     # diagnostics
     "outlier_replicates", "pvalue_diagnostic", "confounding_check",
     "power_analysis", "detectable_effect",
+    # cross-contrast comparison
+    "compare_contrasts", "concordance_summary", "meta_analyse", "replication_rate",
     # peaks
     "consensus_peaks", "read_narrowpeak", "merge_intervals",
     "peak_overlap_matrix", "saf_from_intervals", "jaccard",

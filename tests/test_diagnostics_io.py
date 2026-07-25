@@ -203,3 +203,85 @@ def test_to_anndata_carries_contrast_and_audit():
     assert ad.n_obs == 6
     assert "log2(KO/WT)" in ad.uns["contrast"]
     assert "epimux_version" in ad.uns
+
+
+# ------------------------------------------------------------- cross-contrast
+def _paired_results(seed=0, effect_b=1.0, n=1000, n_true=100, se_val=0.2):
+    """Two contrasts over the same elements; `effect_b` scales the second one.
+
+    The first `n_true` elements carry a real effect; the rest are null, so any
+    correlation computed over ALL elements is diluted by design.
+    """
+    from scipy import stats as sstats
+    rng = np.random.default_rng(seed)
+    true = np.concatenate([rng.normal(1.5, .3, n_true), np.zeros(n - n_true)])
+
+    def mk(scale):
+        lfc = true * scale + rng.normal(0, .15, n)
+        se = np.full(n, se_val)
+        stat = lfc / se
+        p = 2 * sstats.norm.sf(np.abs(stat))
+        return pd.DataFrame({"baseMean": 100.0, "log2FC": lfc, "lfcSE": se,
+                             "stat": stat, "pvalue": p, "padj": ep.bh_fdr(p)})
+    return mk(1.0), mk(effect_b)
+
+
+def test_compare_contrasts_finds_no_interaction_when_equal():
+    a, b = _paired_results(effect_b=1.0)
+    cmp = ep.compare_contrasts(a, b, "LSK", "GMP")
+    assert (cmp["padj_interaction"] < 0.1).sum() < 30       # ~nothing differs
+
+
+def test_compare_contrasts_detects_real_interaction():
+    a, b = _paired_results(effect_b=0.0)                    # effect absent in B
+    cmp = ep.compare_contrasts(a, b, "LSK", "GMP")
+    assert (cmp["padj_interaction"] < 0.1).sum() > 50
+    # and the interactions must sit on the elements that actually carry an effect
+    top = cmp.nsmallest(50, "padj_interaction").index
+    assert (top < 100).mean() > 0.8
+
+
+def test_concordance_summary_separates_power_from_biology():
+    """Identical effects: hits should be shared, with few real interactions."""
+    a, b = _paired_results(effect_b=1.0)
+    cmp = ep.compare_contrasts(a, b, "LSK", "GMP")
+    s = ep.concordance_summary(cmp, "LSK", "GMP")
+    # correlation over the elements that carry an effect (not the null 90%)
+    has_effect = cmp.index < 100
+    from scipy import stats as sstats
+    r = sstats.spearmanr(cmp.loc[has_effect, "log2FC_LSK"], cmp.loc[has_effect, "log2FC_GMP"])[0]
+    assert r > 0.8
+    assert s["shared"] > 0
+    assert s["shared_same_direction"] == s["shared"]
+    assert s["elements_with_interaction"] < 30
+
+
+def test_concordance_summary_flags_real_difference():
+    a, b = _paired_results(effect_b=0.0)
+    s = ep.concordance_summary(ep.compare_contrasts(a, b, "LSK", "GMP"), "LSK", "GMP")
+    assert s["LSK_only"] > 0
+    assert s["fraction_of_differences_supported"] > 0.5
+    assert "genuinely differ" in s["interpretation"]
+
+
+def test_meta_analyse_shrinks_standard_error():
+    a, b = _paired_results(effect_b=1.0, se_val=0.2)
+    m = ep.meta_analyse({"one": a, "two": b})
+    # inverse-variance pooling of two SE=0.2 estimates -> 0.2/sqrt(2) ~ 0.141
+    assert m["se"].median() == pytest.approx(0.2 / np.sqrt(2), rel=0.05)
+    assert "pvalue_heterogeneity" in m
+
+
+def test_meta_analyse_detects_heterogeneity():
+    a, b = _paired_results(effect_b=0.0)
+    m = ep.meta_analyse({"one": a, "two": b})
+    het = (m["pvalue_heterogeneity"] < 0.05)
+    assert het.iloc[:100].mean() > het.iloc[100:].mean()   # true-effect elements disagree
+
+
+def test_replication_rate_direction():
+    a, b = _paired_results(effect_b=1.0)
+    r = ep.replication_rate(a, b)
+    assert r["n_discovery_hits"] > 0
+    assert r["same_direction_rate"] > 0.9
+    assert r["replication_rate_loose"] > 0.8

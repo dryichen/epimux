@@ -68,3 +68,7 @@ First release.
   design: the z-score criterion is mathematically bounded below the threshold at
   small n. Now uses the drop relative to group-mates, with the z-score applied
   only when a group has >= 5 replicates.
+- `meta`: `compare_contrasts` (per-element interaction test — the question people
+  actually mean by "is the effect the same in A and B?"), `concordance_summary`
+  (how much of an apparent difference is power rather than biology),
+  `meta_analyse` with Cochran's Q, `replication_rate`.
