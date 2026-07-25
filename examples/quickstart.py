@@ -26,16 +26,24 @@ elements = pd.DataFrame({
 
 
 def make_counts(effect, seed):
-    """Counts where the first N_CHANGE elements are UP in KO by `effect`."""
+    """Three groups: WT, KO (first N_CHANGE elements up by `effect`), and OTHER,
+    a different cell type used as the positive control.
+
+    The cell-type shift is drawn ONCE per group so its replicates agree with each
+    other. A positive control whose replicates disagree tests nothing.
+    """
     r = np.random.default_rng(seed)
     base = r.lognormal(4.4, 0.9, N)
-    cols, design = {}, {"WT": [], "KO": []}
-    for g in ("WT", "KO"):
+    cell_type_shift = r.lognormal(0, 0.8, N)      # drawn once, not per replicate
+    cols, design = {}, {"WT": [], "KO": [], "OTHER": []}
+    for g in ("WT", "KO", "OTHER"):
+        mu = base.copy()
+        if g == "KO":
+            mu[:N_CHANGE] *= effect               # <-- the ground truth
+        elif g == "OTHER":
+            mu = mu * cell_type_shift
         for i in range(1, N_REP + 1):
             s = f"{g}_R{i}"
-            mu = base.copy()
-            if g == "KO":
-                mu[:N_CHANGE] *= effect
             cols[s] = r.poisson(mu)
             design[g].append(s)
     return pd.DataFrame(cols, index=[f"e{i}" for i in range(N)]), design
@@ -53,8 +61,9 @@ ds.set_design(design)
 # log2FC = log2(KO / WT) -- pinned by the contrast, verified against raw counts
 ds.differential(ref="WT", test="KO")
 
-# the audit battery: direction, power, false positives, reliability
-ds.audit(positive_control=("WT", "KO"), null_group="WT")
+# the audit battery. The positive control is a DIFFERENT comparison, one we know
+# differs -- using the contrast of interest as its own control is circular.
+ds.audit(positive_control=("WT", "OTHER"), null_group="WT")
 print("\n" + repr(ds.audit_report))
 
 print("\n" + repr(ds.coupling("ATAC", "H3K27ac")))

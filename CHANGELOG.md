@@ -89,3 +89,17 @@ First release.
   every emphasis in a figure was lost. `set_style()` now splits a collection into
   per-face files, registers them all, and selects the family by name. Added a
   regression test that renders bold/italic and asserts the output differs.
+- **The tutorial notebook was unrunnable.** Its `source` lines were written
+  without trailing newlines, so nbformat joined every line into one and the very
+  first cell raised `SyntaxError`. It rendered correctly on GitHub, so nothing
+  looked wrong. Rewritten, executed end to end, and now covered by tests.
+- **The tutorial and quickstart used the contrast of interest as its own positive
+  control**, which is circular and teaches the wrong thing. Both now simulate a
+  third group (a different cell type) and use it as the control. The first
+  attempt at that simulation drew the cell-type shift *inside* the replicate
+  loop, which inflated within-group variance and made the control FAIL — it is
+  now drawn once per group, as it must be.
+- `tests/test_docs.py`: notebook well-formedness (including the newline rule),
+  end-to-end execution of the tutorial and the quickstart, a check that no
+  example uses a circular positive control, and verification that every `ep.*`
+  call named in the documentation exists.
