@@ -29,6 +29,7 @@ import numpy as np
 import pandas as pd
 
 from . import audit as _audit
+from . import diagnostics as _diag
 from . import coupling as _coupling
 from . import modules as _modules
 from .assays import (Assay, CountAssay, HiCAssay, MethylAssay, SignalAssay,
@@ -156,7 +157,8 @@ class Dataset:
     # ---------------------------------------------------------------- audit
     def audit(self, positive_control: tuple | None = None,
               null_group: str | None = None, frip: dict | None = None,
-              assays: list | None = None) -> _audit.AuditReport:
+              assays: list | None = None,
+              covariates: pd.DataFrame | None = None) -> _audit.AuditReport:
         """Run the full battery of checks.
 
         ``positive_control`` -- ``(ref, test)`` for a comparison that must differ
@@ -196,11 +198,25 @@ class Dataset:
                 r = _audit.efficiency_balance(f, sub, observed_direction=obs)
                 r.name = f"efficiency_balance[{n}]"
                 self.audit_report.add(r)
-            r = _audit.replicate_reliability(
-                a.norm() if hasattr(a, "norm") else a.matrix,
-                {g: [s for s in v if s in a.samples] for g, v in self.design.items()})
+            vals = a.norm() if hasattr(a, "norm") else a.matrix
+            grp = {g: [s for s in v if s in a.samples] for g, v in self.design.items()}
+            r = _audit.replicate_reliability(vals, grp)
             r.name = f"replicate_reliability[{n}]"
             self.audit_report.add(r)
+            r = _diag.outlier_replicates(vals, grp)
+            r.name = f"outlier_replicates[{n}]"
+            self.audit_report.add(r)
+            if n in self.results:
+                r = _diag.pvalue_diagnostic(self.results[n])
+                r.name = f"pvalue_diagnostic[{n}]"
+                self.audit_report.add(r)
+            if covariates is not None:
+                sub = Contrast(ref=self._contrast.ref, test=self._contrast.test,
+                               group={g: [s for s in v if s in a.samples]
+                                      for g, v in self.design.items()})
+                r = _diag.confounding_check(sub, covariates)
+                r.name = f"confounding_check[{n}]"
+                self.audit_report.add(r)
         return self.audit_report
 
     # -------------------------------------------------------------- analysis
@@ -252,6 +268,19 @@ class Dataset:
         thr = np.log2(fc) if r.attrs.get("value_kind") != "difference" else 0.1
         m = (r["padj"] < fdr) & (r["log2FC"].abs() > thr)
         return r[m.fillna(False)]
+
+    def export(self, out_dir: str, **kw):
+        from .io import export_results
+        return export_results(self, out_dir, **kw)
+
+    def to_anndata(self, assay: str):
+        from .io import to_anndata
+        return to_anndata(self, assay)
+
+    def power(self, assay: str, **kw):
+        from .diagnostics import power_analysis
+        n = min(len(v) for v in self.design.values() if v)
+        return power_analysis(self.results[assay], n_per_group=kw.pop("n_per_group", n), **kw)
 
     def report(self, path="epimux_report.html", **kw):
         from .report import html_report

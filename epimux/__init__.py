@@ -30,6 +30,12 @@ from .audit import (AuditReport, AuditResult, check_direction, efficiency_balanc
                     null_contrast, positive_control, replicate_reliability)
 from .core import Dataset
 from .coupling import classify_elements, concordance, couple
+from .diagnostics import (confounding_check, detectable_effect, outlier_replicates,
+                          power_analysis, pvalue_diagnostic)
+from .io import (export_bed, export_results, load_results, save_dataset,
+                 to_anndata, to_mudata)
+from .peaks import (consensus_peaks, jaccard, merge_intervals, peak_overlap_matrix,
+                    read_narrowpeak, saf_from_intervals)
 from .linking import abc_link, aggregate_to_genes, nearest_gene
 from .modules import find_modules, module_enrichment, module_profile
 from .annotation import (annotate_tss, classify_context, context_composition,
@@ -65,5 +71,14 @@ __all__ = [
     # enrichment
     "pathway_enrichment", "motif_enrichment", "overlap_enrichment",
     "gc_matched_background",
+    # diagnostics
+    "outlier_replicates", "pvalue_diagnostic", "confounding_check",
+    "power_analysis", "detectable_effect",
+    # peaks
+    "consensus_peaks", "read_narrowpeak", "merge_intervals",
+    "peak_overlap_matrix", "saf_from_intervals", "jaccard",
+    # io
+    "to_anndata", "to_mudata", "export_bed", "export_results",
+    "save_dataset", "load_results",
     "plotting", "tracks", "hic", "__version__",
 ]

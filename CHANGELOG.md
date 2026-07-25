@@ -45,3 +45,26 @@ First release.
 - Browser-style locus tracks, metaprofiles and per-region heatmaps.
 - Self-contained, theme-aware HTML report.
 - CLI: `epimux run|audit --config study.yaml`.
+
+## [Unreleased]
+
+### Added
+- `diagnostics`: `outlier_replicates` (drop-based, because a z-score is bounded
+  by `(n-1)/sqrt(n)` and can never fire at n=3), `pvalue_diagnostic` for model
+  mis-specification, `confounding_check`, `power_analysis`, `detectable_effect`.
+  Wired into `Dataset.audit()`.
+- `peaks`: consensus peak construction that **refuses** the replicate-imbalanced
+  "present in >= k" default, plus `merge_intervals`, `peak_overlap_matrix`,
+  `saf_from_intervals`, `jaccard`.
+- `io`: AnnData/MuData export, BED export by direction, and `export_results`,
+  which writes a manifest recording the contrast, the sign convention and the
+  audit outcome alongside the tables.
+- `Dataset.export()`, `Dataset.to_anndata()`, `Dataset.power()`.
+- `docs/tutorial.ipynb` — full walkthrough on data with a known ground truth.
+- CI badge; 16 further tests (45 total).
+
+### Fixed
+- `outlier_replicates` could never flag a deviant replicate in a three-replicate
+  design: the z-score criterion is mathematically bounded below the threshold at
+  small n. Now uses the drop relative to group-mates, with the z-score applied
+  only when a group has >= 5 replicates.

@@ -1,5 +1,9 @@
 # epimux
 
+[![CI](https://github.com/dryichen/epimux/actions/workflows/ci.yml/badge.svg)](https://github.com/dryichen/epimux/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 **Bulk epigenome integration anchored on genomic intervals — with an audit layer that catches the errors that silently invalidate multi-omic studies.**
 
 ```python
@@ -101,6 +105,9 @@ Hi-C features need `cooler`, `cooltools`, `bioframe`; bigWig needs `pyBigWig`.
 | `hic` | P(s) + log-derivative, saddle & compartment strength, pileup, APA, boundary strength, differential insulation |
 | `plotting` | MA, volcano, coupling, heatmap, PCA, state bars, audit traffic-lights |
 | `tracks` | browser-style locus panels, metaprofiles, per-region heatmaps |
+| `diagnostics` | outlier replicates, p-value histogram shape, confounding, power analysis |
+| `peaks` | consensus peak construction (and refusal of the replicate-imbalanced default), SAF, Jaccard |
+| `io` | AnnData/MuData export, BED export, result manifest with the contrast and audit record |
 | `report` | one self-contained, theme-aware HTML file |
 
 ## Normalisation when a global shift is possible
@@ -136,6 +143,37 @@ S, _  = ep.hic.saddle("wt.mcool", eigenvector, "WT")
 print(ep.hic.compartment_strength(S))             # (AA+BB)/2AB
 mat, score = ep.hic.apa("wt.mcool", loops)
 ```
+
+## Diagnostics: which sample, and does the model fit?
+
+`audit` answers *is this trustworthy?*; `diagnostics` answers *what exactly is wrong?*
+
+```python
+ep.outlier_replicates(log_cpm, groups)     # is one replicate dragging the group?
+ep.pvalue_diagnostic(result)               # is the variance model even right?
+ep.confounding_check(contrast, covariates) # is genotype confounded with batch?
+ds.power("ATAC")                           # what effect size can this n detect?
+```
+
+`outlier_replicates` deliberately does **not** rely on a z-score alone: with `n`
+replicates the most extreme z is bounded by `(n-1)/sqrt(n)` — 1.15 at n=3 — so a
+threshold of 2 can never fire in a typical three-replicate design.
+
+## Peak sets are a design decision
+
+A "present in >= k replicates" consensus is **biased whenever the groups have
+unequal replicate numbers**: the larger group wins more peaks, which manufactures
+apparent gains. `consensus_peaks` refuses that case by default rather than
+producing a quietly wrong peak set.
+
+```python
+ep.consensus_peaks(files, method="replicated", balance="subsample")
+```
+
+## Tutorial
+
+`docs/tutorial.ipynb` walks through a complete analysis on synthetic data with a
+known ground truth, so every claim can be checked against what was planted.
 
 ## Citation
 
