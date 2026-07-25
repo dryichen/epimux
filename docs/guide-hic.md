@@ -1,6 +1,6 @@
 # Hi-C analyses
 
-Contact maps are usually the deepest and least normalisation-fragile assay in a
+Contact maps are usually the deepest and least normalization-fragile assay in a
 multi-omic study, and they need **no spike-in**. That makes Hi-C the right tool
 when a ChIP is too shallow to quantify but the biological question still stands.
 
@@ -80,7 +80,7 @@ mat, score = ep.hic.apa("wt.mcool", loops, flank=100_000)       # off-diagonal
 ```
 
 `pileup` divides by the distance-dependent expected by default, so the result is
-observed/expected rather than raw contact. `apa` returns a centre/corner ratio —
+observed/expected rather than raw contact. `apa` returns a center/corner ratio —
 compare that number between conditions on the **same loop set**, never on
 per-condition loop calls, or you are measuring the calling threshold rather than
 the biology.
@@ -96,5 +96,5 @@ gene_effect = ep.aggregate_to_genes(links, ds.results["ATAC"]["log2FC"])
 ```
 
 Nearest-gene assignment (`method="nearest"`) is available for comparison and is
-clearly labelled as not recommended: enhancers routinely skip their neighbour,
+clearly labeled as not recommended: enhancers routinely skip their neighbour,
 often enough to change the conclusion of a pathway analysis.

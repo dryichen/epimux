@@ -32,7 +32,7 @@ hic = ["cooler>=0.9", "cooltools>=0.6", "bioframe>=0.4"]
 bigwig = ["pyBigWig>=0.3"]
 enrich = ["gseapy>=1.0"]
 all = ["cooler>=0.9", "cooltools>=0.6", "bioframe>=0.4", "pyBigWig>=0.3", "gseapy>=1.0"]
-dev = ["pytest>=7", "pytest-cov"]
+dev = ["pytest>=7", "pytest-cov", "fonttools>=4.0"]
 
 [project.scripts]
 epimux = "epimux.cli:main"

@@ -102,7 +102,7 @@ is a sentence worth putting in a paper:
 > bias and the estimate is conservative.
 
 **If it fails:** re-run on an efficiency-matched subset, drop the worst library,
-or use spike-in normalisation (`ep.spike_in_factors`).
+or use spike-in normalization (`ep.spike_in_factors`).
 
 ---
 

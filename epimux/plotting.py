@@ -24,11 +24,17 @@ __all__ = ["set_style", "PALETTE", "ma_plot", "volcano", "coupling_plot",
 
 PALETTE = {
     "navy": "#3C5488", "teal": "#00A087", "red": "#E64B35", "orange": "#F39B7F",
-    "blue": "#4DBBD5", "grey": "#B8B8B8", "dgrey": "#5A5A5A", "dark": "#1A2433",
+    "blue": "#4DBBD5", "gray": "#B8B8B8", "dgray": "#5A5A5A", "dark": "#1A2433",
     "purple": "#8491B4", "gold": "#E6A817",
 }
 # Helvetica is the usual journal requirement but is rarely installed; set
 # EPIMUX_FONT to a .ttf/.ttc to use it, otherwise a sane sans-serif is used.
+#
+# .ttc collections need care: they hold several faces (Regular, Bold, Oblique,
+# ...) but FontProperties(fname=...) loads only face 0, so fontweight="bold" and
+# style="italic" are SILENTLY IGNORED and emphasis disappears from the figure.
+# set_style() splits a collection into per-face files once, registers them all,
+# and then selects the family by name so weight and style resolve properly.
 _FONT_CANDIDATES = [
     os.environ.get("EPIMUX_FONT", ""),
     "/usr/share/fonts/truetype/helvetica/Helvetica.ttf",
@@ -36,6 +42,35 @@ _FONT_CANDIDATES = [
     "/System/Library/Fonts/Helvetica.ttc",
     "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
 ]
+_FACE_CACHE = os.path.expanduser("~/.cache/epimux/fonts")
+
+
+def _register_collection(path):
+    """Split a .ttc into per-face .ttf files and register all of them.
+
+    Returns the family name if at least one face was registered, else None.
+    """
+    try:
+        from fontTools.ttLib import TTCollection
+    except ImportError:
+        return None
+    try:
+        os.makedirs(_FACE_CACHE, exist_ok=True)
+        stem = os.path.splitext(os.path.basename(path))[0]
+        made = [f for f in os.listdir(_FACE_CACHE) if f.startswith(stem)]
+        if not made:
+            for face in TTCollection(path).fonts:
+                name = (face["name"].getDebugName(4) or stem).replace(" ", "")
+                face.save(os.path.join(_FACE_CACHE, f"{stem}__{name}.ttf"))
+            made = [f for f in os.listdir(_FACE_CACHE) if f.startswith(stem)]
+        family = None
+        for fn in sorted(made):
+            fp = os.path.join(_FACE_CACHE, fn)
+            mpl.font_manager.fontManager.addfont(fp)
+            family = family or FontProperties(fname=fp).get_name()
+        return family
+    except Exception:
+        return None
 FP = FontProperties(family="DejaVu Sans")
 DIVERGING = LinearSegmentedColormap.from_list("epimux", [PALETTE["navy"], "#f4f4f4", PALETTE["red"]])
 
@@ -45,22 +80,23 @@ def set_style(font: str | None = None):
     global FP
     cands = ([font] if font else []) + _FONT_CANDIDATES
     for c in cands:
-        if c and os.path.exists(c):
-            try:
-                fp = FontProperties(fname=c)
-                fig = plt.figure(figsize=(0.4, 0.4))
-                fig.text(0.1, 0.1, "Ag", fontproperties=fp)
-                fig.canvas.draw()
-                plt.close(fig)
-                FP = fp
-                try:
-                    mpl.font_manager.fontManager.addfont(c)
-                    mpl.rcParams["font.family"] = fp.get_name()
-                except Exception:
-                    pass
-                break
-            except Exception:
-                continue
+        if not c or not os.path.exists(c):
+            continue
+        try:
+            family = _register_collection(c) if c.lower().endswith(".ttc") else None
+            if family is None:
+                mpl.font_manager.fontManager.addfont(c)
+                family = FontProperties(fname=c).get_name()
+            fp = FontProperties(family=family)
+            fig = plt.figure(figsize=(0.4, 0.4))
+            fig.text(0.1, 0.1, "Ag", fontproperties=fp)
+            fig.canvas.draw()
+            plt.close(fig)
+            FP = fp
+            mpl.rcParams["font.family"] = family
+            break
+        except Exception:
+            continue
     mpl.rcParams.update({
         "pdf.fonttype": 42, "ps.fonttype": 42, "svg.fonttype": "none",
         "axes.linewidth": 0.8, "xtick.major.width": 0.8, "ytick.major.width": 0.8,
@@ -103,7 +139,7 @@ def save(fig, path, formats=("png", "pdf")):
 # --------------------------------------------------------------------------
 def ma_plot(res: pd.DataFrame, fc=1.5, fdr=0.1, title=None, ax=None,
             up_label=None, down_label=None, ylim=(-4, 4)):
-    """Effect size vs abundance, significance coloured by direction."""
+    """Effect size vs abundance, significance colored by direction."""
     d = res.dropna(subset=["log2FC", "baseMean"])
     lfc = np.log2(fc) if res.attrs.get("value_kind") != "difference" else 0.1
     x = np.log10(d["baseMean"] + 1)
@@ -114,7 +150,7 @@ def ma_plot(res: pd.DataFrame, fc=1.5, fdr=0.1, title=None, ax=None,
         fig, ax = plt.subplots(figsize=(4.6, 4.2))
     else:
         fig = ax.figure
-    ax.scatter(x[~sig], y[~sig], s=2.5, c=PALETTE["grey"], alpha=.25, lw=0, rasterized=True)
+    ax.scatter(x[~sig], y[~sig], s=2.5, c=PALETTE["gray"], alpha=.25, lw=0, rasterized=True)
     ax.scatter(x[dn], y[dn], s=7, c=PALETTE["navy"], alpha=.78, lw=0, rasterized=True)
     ax.scatter(x[up], y[up], s=7, c=PALETTE["red"], alpha=.78, lw=0, rasterized=True)
     ax.axhline(0, c="k", lw=.6)
@@ -137,14 +173,14 @@ def volcano(res: pd.DataFrame, fc=1.5, fdr=0.1, title=None, ax=None, label_top=0
         fig, ax = plt.subplots(figsize=(4.4, 4.4))
     else:
         fig = ax.figure
-    ax.scatter(d["log2FC"][~sig], y[~sig], s=3, c=PALETTE["grey"], alpha=.3, lw=0, rasterized=True)
+    ax.scatter(d["log2FC"][~sig], y[~sig], s=3, c=PALETTE["gray"], alpha=.3, lw=0, rasterized=True)
     up, dn = sig & (d["log2FC"] > 0), sig & (d["log2FC"] < 0)
     ax.scatter(d["log2FC"][up], y[up], s=8, c=PALETTE["red"], alpha=.8, lw=0, rasterized=True)
     ax.scatter(d["log2FC"][dn], y[dn], s=8, c=PALETTE["navy"], alpha=.8, lw=0, rasterized=True)
     ax.axvline(0, c="k", lw=.5)
     for v in (-lfc, lfc):
-        ax.axvline(v, c=PALETTE["dgrey"], lw=.6, ls=":")
-    ax.axhline(-np.log10(fdr), c=PALETTE["dgrey"], lw=.6, ls=":")
+        ax.axvline(v, c=PALETTE["dgray"], lw=.6, ls=":")
+    ax.axhline(-np.log10(fdr), c=PALETTE["dgray"], lw=.6, ls=":")
     _clean(ax, title, "log2 fold-change (test / ref)", "-log10 FDR")
     return fig, ax
 
@@ -179,7 +215,7 @@ def coupling_plot(res_x, res_y, name_x="X", name_y="Y", fc=1.5, fdr=0.1,
            f"{name_x} log2FC", f"{name_y} log2FC", color=PALETTE["teal"])
     ax.text(.04, .93, f"n = {len(x):,}\ndual-sig = {int(dual.sum())}",
             transform=ax.transAxes, va="top", fontproperties=FP,
-            fontsize=9, color=PALETTE["dgrey"])
+            fontsize=9, color=PALETTE["dgray"])
     return fig, ax
 
 
@@ -219,7 +255,7 @@ def state_barplot(states: pd.Series, ax=None, title=None):
     """Counts of multi-layer states (coordinated / discordant / ...)."""
     order = ["coordinated_up", "coordinated_down", "discordant", "single_layer"]
     vals = [int(states.get(k, 0)) for k in order]
-    cols = [PALETTE["red"], PALETTE["navy"], PALETTE["gold"], PALETTE["grey"]]
+    cols = [PALETTE["red"], PALETTE["navy"], PALETTE["gold"], PALETTE["gray"]]
     if ax is None:
         fig, ax = plt.subplots(figsize=(4.6, 4.2))
     else:
@@ -253,13 +289,13 @@ def pca_plot(matrix: pd.DataFrame, groups: dict, n_top=2000, ax=None, title=None
         fig = ax.figure
     for s, (px, py) in zip(matrix.columns, pcs):
         g = g_of.get(s, "other")
-        ax.scatter(px, py, c=palette.get(g, PALETTE["grey"]),
+        ax.scatter(px, py, c=palette.get(g, PALETTE["gray"]),
                    marker=(markers or {}).get(g, "o"), s=90,
                    edgecolor="white", lw=1, zorder=3)
     _clean(ax, title or "sample PCA", f"PC1 ({ve[0]:.0f}%)", f"PC2 ({ve[1]:.0f}%)")
     from matplotlib.lines import Line2D
     ax.legend(handles=[Line2D([0], [0], marker="o", color="w", markersize=9,
-                              markerfacecolor=palette.get(g, PALETTE["grey"]), label=g)
+                              markerfacecolor=palette.get(g, PALETTE["gray"]), label=g)
                        for g in groups],
               prop=FP, fontsize=8, frameon=False, loc="best")
     return fig, ax

@@ -21,7 +21,7 @@ ds = ep.Dataset("enhancers.bed", genome="mm10")
 ds = ep.Dataset(dataframe, genome="mm10")     # or pass a frame directly
 ```
 
-Column names are normalised, so `chr`/`seqnames`/`chromosome` and
+Column names are normalized, so `chr`/`seqnames`/`chromosome` and
 `stop`/`chromEnd` are all accepted. Coordinates are **0-based, half-open** (BED
 convention). The only place this changes is `saf_from_intervals`, which converts
 to featureCounts' 1-based inclusive convention for you.
@@ -167,7 +167,7 @@ res["ATAC"].head()
 
 | column | meaning |
 |---|---|
-| `baseMean` | mean normalised abundance |
+| `baseMean` | mean normalized abundance |
 | `log2FC` | **always** `log2(test / ref)` — verified against raw values |
 | `stat` | Wald statistic (or moderated *t*) |
 | `pvalue`, `padj` | raw and Benjamini–Hochberg adjusted |

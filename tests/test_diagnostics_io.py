@@ -266,7 +266,7 @@ def test_concordance_summary_flags_real_difference():
 
 def test_meta_analyse_shrinks_standard_error():
     a, b = _paired_results(effect_b=1.0, se_val=0.2)
-    m = ep.meta_analyse({"one": a, "two": b})
+    m = ep.meta_analyze({"one": a, "two": b})
     # inverse-variance pooling of two SE=0.2 estimates -> 0.2/sqrt(2) ~ 0.141
     assert m["se"].median() == pytest.approx(0.2 / np.sqrt(2), rel=0.05)
     assert "pvalue_heterogeneity" in m
@@ -274,7 +274,7 @@ def test_meta_analyse_shrinks_standard_error():
 
 def test_meta_analyse_detects_heterogeneity():
     a, b = _paired_results(effect_b=0.0)
-    m = ep.meta_analyse({"one": a, "two": b})
+    m = ep.meta_analyze({"one": a, "two": b})
     het = (m["pvalue_heterogeneity"] < 0.05)
     assert het.iloc[:100].mean() > het.iloc[100:].mean()   # true-effect elements disagree
 

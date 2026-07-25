@@ -31,7 +31,7 @@ ds.report("report.html")
 | [**Tutorial**](docs/tutorial.ipynb) | full walkthrough on data with a known ground truth |
 | [**Input formats**](docs/guide-inputs.md) | what each assay expects, design, covariates, exports |
 | [**Reading the audit**](docs/guide-audit.md) | what each check tests and how to act on it |
-| [**Choosing a normalisation**](docs/guide-normalisation.md) | spike-in, internal reference, and when a magnitude is unrecoverable |
+| [**Choosing a normalization**](docs/guide-normalization.md) | spike-in, internal reference, and when a magnitude is unrecoverable |
 | [**Hi-C analyses**](docs/guide-hic.md) | compartments, P(s), insulation, APA, ABC linking |
 | [**Command line**](docs/guide-cli.md) | `epimux run/audit --config study.yaml` |
 | [**FAQ**](docs/faq.md) | troubleshooting |
@@ -69,10 +69,10 @@ into a figure and a slide deck:
 
 | Check | The error it catches |
 |---|---|
-| `check_direction` | A contrast built from an R factor computed `log2(WT/KO)` because factor levels sort **alphabetically**. Every direction in the analysis was reversed; nothing downstream complained. This check recomputes the effect from raw normalised values and **fails loudly** on a sign flip. |
+| `check_direction` | A contrast built from an R factor computed `log2(WT/KO)` because factor levels sort **alphabetically**. Every direction in the analysis was reversed; nothing downstream complained. This check recomputes the effect from raw normalized values and **fails loudly** on a sign flip. |
 | `positive_control` | A bigWig/limma pipeline reported "no change" for a histone mark. It was a **false negative of a weak method** — the same pipeline could not detect a cell-type difference either. A pipeline that cannot find a difference you *know* exists cannot support a null result. |
 | `null_contrast` | Splitting replicates *within* one group must yield ~no hits. If it does not, the "significant" features in the real contrast are noise. |
-| `efficiency_balance` | Unequal ChIP efficiency (FRiP) between genotypes can manufacture a directional bias that survives depth normalisation. Reports whether the observed effect runs **with** the technical bias (dangerous) or **against** it (conservative). |
+| `efficiency_balance` | Unequal ChIP efficiency (FRiP) between genotypes can manufacture a directional bias that survives depth normalization. Reports whether the observed effect runs **with** the technical bias (dangerous) or **against** it (conservative). |
 | `replicate_reliability` | Low reliability attenuates every cross-assay correlation by `sqrt(r_x · r_y)` — the reason single-replicate tracks yield correlations with the wrong magnitude and sometimes the wrong sign. |
 | `outlier_replicates` | Which single library is driving the result. Uses the drop relative to group-mates, because the most extreme z-score with `n` samples is bounded by `(n-1)/sqrt(n)` — **1.15 at n=3** — so a z-threshold can never fire in a three-replicate design. |
 | `pvalue_diagnostic` | A mis-specified variance model, read off the p-value histogram, before the FDR is believed. |
@@ -105,11 +105,11 @@ irreproducible "discordant element" lists.
 
 **Genes by contact, not proximity.** `link_genes(method="abc")` uses the contact
 map (Fulco-style Activity-by-Contact). Nearest-gene is available for comparison
-and clearly labelled as not recommended.
+and clearly labeled as not recommended.
 
 **Defaults refuse the biased option.** `consensus_peaks(method="replicated")`
 raises on unequal replicate numbers rather than quietly producing a peak set
-that favours the larger group.
+that favors the larger group.
 
 ---
 
@@ -132,7 +132,7 @@ ep.pvalue_diagnostic(result)                # does the model fit?
 ds.power("ATAC")                            # what effect size can this n detect?
 ```
 
-### Normalisation when a global shift is possible
+### Normalization when a global shift is possible
 
 ```python
 ep.assess_global_shift(counts, contrast, frip=frip)   # is the assumption at risk?
@@ -143,7 +143,7 @@ counts_norm = ep.apply_factors(counts, sf)
 Without spike-ins, `reference_normalize` against a set you believe is invariant
 is a weaker but honest fallback — and `assess_global_shift` at least tells you
 when to stop claiming a magnitude.
-See [docs/guide-normalisation.md](docs/guide-normalisation.md).
+See [docs/guide-normalization.md](docs/guide-normalization.md).
 
 ### Cross-layer and cross-contrast
 
@@ -153,7 +153,7 @@ states = ds.classify(); ep.concordance(states)
 
 cmp = ep.compare_contrasts(res_lsk, res_gmp, "LSK", "GMP")   # interaction test
 ep.concordance_summary(cmp, "LSK", "GMP")    # power difference or real difference?
-ep.meta_analyse({"cohort1": r1, "cohort2": r2})
+ep.meta_analyze({"cohort1": r1, "cohort2": r2})
 ```
 
 `compare_contrasts` exists because comparing two significance lists does **not**
@@ -224,7 +224,7 @@ and rasterise scatter layers so vector files stay small.
 | `diagnostics` | outlier replicates, p-value shape, confounding, power analysis |
 | `normalization` | median-of-ratios, TMM, quantile, **spike-in**, internal reference, global-shift assessment |
 | `coupling` | `couple`, `classify_elements`, `concordance` |
-| `meta` | `compare_contrasts`, `concordance_summary`, `meta_analyse`, `replication_rate` |
+| `meta` | `compare_contrasts`, `concordance_summary`, `meta_analyze`, `replication_rate` |
 | `modules` | `find_modules`, `module_profile`, `module_enrichment` |
 | `linking` | `abc_link`, `nearest_gene`, `aggregate_to_genes` |
 | `annotation` | TSS distance, genomic context, ROSE-style super-enhancers |

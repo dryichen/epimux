@@ -22,10 +22,10 @@ First release.
   `replicate_reliability`, and an `AuditReport` with traffic-light rendering.
 - `differential()` verifies direction by default and raises on a sign flip.
 
-### Normalisation
+### Normalization
 - `median_of_ratios`, `tmm`, `quantile_normalize`.
 - `spike_in_factors` and `reference_normalize` for the case where a genuine
-  global shift would otherwise be absorbed by size-factor normalisation.
+  global shift would otherwise be absorbed by size-factor normalization.
 - `assess_global_shift` warns when that assumption is at risk.
 
 ### Analysis
@@ -71,8 +71,21 @@ First release.
 - `meta`: `compare_contrasts` (per-element interaction test — the question people
   actually mean by "is the effect the same in A and B?"), `concordance_summary`
   (how much of an apparent difference is power rather than biology),
-  `meta_analyse` with Cochran's Q, `replication_rate`.
+  `meta_analyze` with Cochran's Q, `replication_rate`.
 - Documentation: `docs/api.md` (auto-generated, 102 entries), plus guides for
-  input formats, reading the audit, choosing a normalisation, Hi-C analyses and
+  input formats, reading the audit, choosing a normalization, Hi-C analyses and
   the CLI, and a troubleshooting FAQ. README expanded with worked examples for
   every module. All documented APIs are verified to exist.
+
+### Changed
+- All prose, docstrings and identifiers converted to American English.
+  `meta_analyse` is now `meta_analyze`; the palette keys `grey`/`dgrey` are now
+  `gray`/`dgray`. `docs/guide-normalisation.md` is `docs/guide-normalization.md`.
+
+### Fixed
+- **Bold and italic were silently dropped in figures.** A `.ttc` collection holds
+  several faces, but `FontProperties(fname=...)` loads only face 0, so
+  `fontweight="bold"` and `style="italic"` rendered identically to regular and
+  every emphasis in a figure was lost. `set_style()` now splits a collection into
+  per-face files, registers them all, and selects the family by name. Added a
+  regression test that renders bold/italic and asserts the output differs.

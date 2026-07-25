@@ -3,7 +3,7 @@
 How a consensus peak set is built silently determines what a differential
 analysis can find:
 
-* union of per-sample peaks maximises sensitivity but inflates the test burden;
+* union of per-sample peaks maximizes sensitivity but inflates the test burden;
 * "present in >= k replicates" is the common default, and is **biased whenever
   the groups have unequal replicate numbers** — the group with more replicates
   wins more peaks, which manufactures apparent gains;
@@ -92,7 +92,7 @@ def consensus_peaks(peak_files: dict, method: str = "union", min_replicates: int
     sizes = {g: len(ps) for g, ps in groups.items()}
     if method == "replicated" and len(set(sizes.values())) > 1:
         msg = (f"unequal replicate counts {sizes}: a 'present in >={min_replicates}' rule "
-               "favours the larger group and can manufacture apparent gains")
+               "favors the larger group and can manufacture apparent gains")
         if balance == "raise":
             raise ValueError(msg + ". Pass balance='subsample' or balance='ignore'.")
         if balance == "subsample":

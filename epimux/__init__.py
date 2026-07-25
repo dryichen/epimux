@@ -37,7 +37,7 @@ from .io import (export_bed, export_results, load_results, save_dataset,
 from .peaks import (consensus_peaks, jaccard, merge_intervals, peak_overlap_matrix,
                     read_narrowpeak, saf_from_intervals)
 from .linking import abc_link, aggregate_to_genes, nearest_gene
-from .meta import (compare_contrasts, concordance_summary, meta_analyse,
+from .meta import (compare_contrasts, concordance_summary, meta_analyze,
                    replication_rate)
 from .modules import find_modules, module_enrichment, module_profile
 from .annotation import (annotate_tss, classify_context, context_composition,
@@ -64,7 +64,7 @@ __all__ = [
     "couple", "classify_elements", "concordance",
     "find_modules", "module_profile", "module_enrichment",
     "abc_link", "nearest_gene", "aggregate_to_genes",
-    # normalisation (incl. spike-in)
+    # normalization (incl. spike-in)
     "median_of_ratios", "tmm", "quantile_normalize", "spike_in_factors",
     "reference_normalize", "apply_factors", "assess_global_shift",
     # annotation
@@ -77,7 +77,7 @@ __all__ = [
     "outlier_replicates", "pvalue_diagnostic", "confounding_check",
     "power_analysis", "detectable_effect",
     # cross-contrast comparison
-    "compare_contrasts", "concordance_summary", "meta_analyse", "replication_rate",
+    "compare_contrasts", "concordance_summary", "meta_analyze", "replication_rate",
     # peaks
     "consensus_peaks", "read_narrowpeak", "merge_intervals",
     "peak_overlap_matrix", "saf_from_intervals", "jaccard",

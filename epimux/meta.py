@@ -12,7 +12,7 @@ This module compares **effect sizes with their uncertainty**:
   in A different from the effect in B?), which is the question people mean.
 * :func:`concordance_summary` reports how much of the apparent difference is
   explained by power rather than biology.
-* :func:`meta_analyse` combines contrasts by inverse-variance weighting when the
+* :func:`meta_analyze` combines contrasts by inverse-variance weighting when the
   intent is to pool rather than contrast.
 """
 from __future__ import annotations
@@ -26,7 +26,7 @@ from .utils import get_logger
 
 LOG = get_logger()
 
-__all__ = ["compare_contrasts", "concordance_summary", "meta_analyse",
+__all__ = ["compare_contrasts", "concordance_summary", "meta_analyze",
            "replication_rate"]
 
 
@@ -122,7 +122,7 @@ def concordance_summary(cmp: pd.DataFrame, name_a: str = "A", name_b: str = "B",
     return out
 
 
-def meta_analyse(results: dict, method: str = "inverse_variance") -> pd.DataFrame:
+def meta_analyze(results: dict, method: str = "inverse_variance") -> pd.DataFrame:
     """Pool several contrasts into one effect size per element.
 
     Use when the contrasts are replicates of the same question (e.g. two cohorts),

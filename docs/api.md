@@ -44,7 +44,6 @@ Base class: an assay is features + a matrix + a mapping to the reference.
 - **`differential(self, contrast: 'Contrast', **kw) -> 'pd.DataFrame'`** — 
 - **`map_to(self, reference: 'pd.DataFrame', how: 'str' = 'best', weight: 'str | None' = None)`** — 
 - **`to_elements(self, values: 'pd.Series', reference: 'pd.DataFrame', agg: 'str' = 'strongest', rank_by: 'pd.Series | None' = None) -> 'pd.Series'`** — Collapse feature-level values onto reference elements.
-- *property* **`samples`**
 
 ### `class CountAssay`
 
@@ -54,7 +53,6 @@ Read-count assay (ATAC, ChIP-seq, CUT&RUN, RNA). Engine: PyDESeq2.
 - **`map_to(self, reference: 'pd.DataFrame', how: 'str' = 'best', weight: 'str | None' = None)`** — 
 - **`norm(self) -> 'pd.DataFrame'`** — 
 - **`to_elements(self, values: 'pd.Series', reference: 'pd.DataFrame', agg: 'str' = 'strongest', rank_by: 'pd.Series | None' = None) -> 'pd.Series'`** — Collapse feature-level values onto reference elements.
-- *property* **`samples`**
 
 ### `class MethylAssay`
 
@@ -64,7 +62,6 @@ Bisulfite methylation. Holds methylated and total counts per element.
 - **`map_to(self, reference: 'pd.DataFrame', how: 'str' = 'best', weight: 'str | None' = None)`** — 
 - **`rates(self, min_cov: 'int' = 10) -> 'pd.DataFrame'`** — 
 - **`to_elements(self, values: 'pd.Series', reference: 'pd.DataFrame', agg: 'str' = 'strongest', rank_by: 'pd.Series | None' = None) -> 'pd.Series'`** — Collapse feature-level values onto reference elements.
-- *property* **`samples`**
 
 ### `class SignalAssay`
 
@@ -73,7 +70,6 @@ Continuous signal extracted from bigWig tracks.
 - **`differential(self, contrast: 'Contrast', **kw) -> 'pd.DataFrame'`** — 
 - **`map_to(self, reference: 'pd.DataFrame', how: 'str' = 'best', weight: 'str | None' = None)`** — 
 - **`to_elements(self, values: 'pd.Series', reference: 'pd.DataFrame', agg: 'str' = 'strongest', rank_by: 'pd.Series | None' = None) -> 'pd.Series'`** — Collapse feature-level values onto reference elements.
-- *property* **`samples`**
 
 ### `class HiCAssay`
 
@@ -85,7 +81,6 @@ Hi-C contact maps: compartments, insulation, local contact support.
 - **`local_contact(self, sample: 'str', targets: 'pd.DataFrame', resolution: 'int' = 20000, flank: 'int' = 200000) -> 'pd.Series'`** — Summed balanced contacts within +/-flank of each target midpoint.
 - **`map_to(self, reference: 'pd.DataFrame', how: 'str' = 'best', weight: 'str | None' = None)`** — 
 - **`to_elements(self, values: 'pd.Series', reference: 'pd.DataFrame', agg: 'str' = 'strongest', rank_by: 'pd.Series | None' = None) -> 'pd.Series'`** — Collapse feature-level values onto reference elements.
-- *property* **`samples`**
 
 ### `read_featurecounts(path, strip=('.mLb.clN.sorted.bam', '.target.markdup.sorted.bam', '.sorted.bam', '.bam', './'))`
 
@@ -121,11 +116,10 @@ Benjamini-Hochberg, NaN-safe.
 
 AuditResult(name: 'str', status: 'str', summary: 'str', detail: 'dict' = <factory>)
 
-- *property* **`symbol`**
 
 ### `check_direction(result: 'pd.DataFrame', counts: 'pd.DataFrame', contrast: 'Contrast', kind: 'str' = 'count', top_n: 'int' = 2000, min_corr: 'float' = 0.5) -> 'AuditResult'`
 
-Verify the sign of ``log2FC`` against raw normalised values.
+Verify the sign of ``log2FC`` against raw normalized values.
 
 ### `positive_control(counts: 'pd.DataFrame', contrast: 'Contrast', de_fn, fc: 'float' = 1.5, fdr: 'float' = 0.1, min_frac: 'float' = 0.02) -> 'AuditResult'`
 
@@ -149,7 +143,6 @@ AuditReport(results: 'list' = <factory>)
 
 - **`add(self, r: 'AuditResult')`** — 
 - **`to_frame(self) -> 'pd.DataFrame'`** — 
-- *property* **`failed`**
 
 
 ## `epimux.diagnostics` — Diagnostics — what exactly is wrong?
@@ -177,9 +170,9 @@ Replicates needed to detect the observed effect sizes.
 Smallest fold-change detectable at the given power with the current n.
 
 
-## `epimux.normalization` — Normalisation
+## `epimux.normalization` — Normalization
 
-*Normalisation, including the spike-in case.*
+*Normalization, including the spike-in case.*
 
 ### `median_of_ratios(counts: 'pd.DataFrame', min_count: 'int' = 1) -> 'pd.Series'`
 
@@ -203,7 +196,7 @@ Size factors from exogenous spike-in reads.
 
 ### `assess_global_shift(counts: 'pd.DataFrame', contrast, frip: 'dict | None' = None, quantiles=(0.25, 0.5, 0.75, 0.9)) -> 'dict'`
 
-Is a genome-wide shift plausible, and would normalisation hide it?
+Is a genome-wide shift plausible, and would normalization hide it?
 
 ### `reference_normalize(counts: 'pd.DataFrame', reference_features) -> 'pd.Series'`
 
@@ -218,7 +211,6 @@ Size factors from an internal set assumed invariant (e.g. constitutive CTCF site
 
 CouplingResult(assay_x: 'str', assay_y: 'str', spearman: 'float', pearson: 'float', pvalue: 'float', n: 'int', dual_significant: 'int', same_direction: 'int', opposite_direction: 'int', strata: 'pd.DataFrame | None' = None, attenuation_corrected: 'float | None' = None, notes: 'list' = <factory>)
 
-- *property* **`interpretation`**
 
 ### `couple(res_x: 'pd.DataFrame', res_y: 'pd.DataFrame', name_x: 'str' = 'X', name_y: 'str' = 'Y', fc: 'float' = 1.5, fdr: 'float' = 0.1, reliability: 'tuple | None' = None, stratify: 'bool' = True, n_strata: 'int' = 4) -> 'CouplingResult'`
 
@@ -245,7 +237,7 @@ Per-element interaction test: does the effect differ between contrasts?
 
 How much of an apparent difference between contrasts is real?
 
-### `meta_analyse(results: 'dict', method: 'str' = 'inverse_variance') -> 'pd.DataFrame'`
+### `meta_analyze(results: 'dict', method: 'str' = 'inverse_variance') -> 'pd.DataFrame'`
 
 Pool several contrasts into one effect size per element.
 
@@ -262,7 +254,6 @@ Do discovery hits replicate, in direction and at a relaxed threshold?
 
 ModuleResult(labels: 'pd.Series', profile: 'pd.DataFrame', inertia: 'float | None' = None, method: 'str' = 'kmeans')
 
-- *property* **`sizes`**
 
 ### `find_modules(layers: 'dict', k: 'int' = 6, method: 'str' = 'kmeans', scale: 'str' = 'zscore', seed: 'int' = 0, max_elements: 'int | None' = None) -> 'ModuleResult'`
 
@@ -391,7 +382,7 @@ Compartment saddle: observed/expected binned by eigenvector rank.
 
 ### `pileup(source, features: 'pd.DataFrame', resolution: 'int' = 10000, flank: 'int' = 200000, expected: 'bool' = True) -> 'np.ndarray'`
 
-On-diagonal pileup (average map centred on each feature).
+On-diagonal pileup (average map centered on each feature).
 
 ### `apa(source, loops: 'pd.DataFrame', resolution: 'int' = 10000, flank: 'int' = 100000) -> 'tuple'`
 
@@ -416,7 +407,7 @@ Apply the house style; returns the FontProperties actually used.
 
 ### `ma_plot(res: 'pd.DataFrame', fc=1.5, fdr=0.1, title=None, ax=None, up_label=None, down_label=None, ylim=(-4, 4))`
 
-Effect size vs abundance, significance coloured by direction.
+Effect size vs abundance, significance colored by direction.
 
 ### `volcano(res: 'pd.DataFrame', fc=1.5, fdr=0.1, title=None, ax=None, label_top=0)`
 
@@ -461,7 +452,7 @@ Stacked browser view.
 
 ### `metaprofile(bigwigs: 'dict', regions: 'pd.DataFrame', flank: 'int' = 2000, nbins: 'int' = 100, groups: 'dict | None' = None, colors: 'dict | None' = None, ax=None, title: 'str | None' = None, center: 'str' = 'midpoint')`
 
-Average signal centred on a set of regions.
+Average signal centered on a set of regions.
 
 ### `heatmap_profile(bigwig, regions: 'pd.DataFrame', flank: 'int' = 2000, nbins: 'int' = 100, sort_by: 'pd.Series | None' = None, vmax: 'float | None' = None, ax=None, title: 'str | None' = None)`
 

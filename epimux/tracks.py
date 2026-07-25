@@ -61,7 +61,7 @@ def locus_plot(tracks: dict, chrom: str, start: int, end: int,
                     continue
                 M = np.vstack(mats)
                 mu = np.nanmean(M, 0)
-                c = palette.get(g, PALETTE["grey"])
+                c = palette.get(g, PALETTE["gray"])
                 ax.plot(x, mu, color=c, lw=1.2, label=g)
                 if show_spread and M.shape[0] > 1:
                     ax.fill_between(x, np.nanmin(M, 0), np.nanmax(M, 0), color=c, alpha=.20, lw=0)
@@ -86,7 +86,7 @@ def locus_plot(tracks: dict, chrom: str, start: int, end: int,
                                            (r["end"] - r["start"]) / 1e6, 0.7,
                                            color=PALETTE["teal"]))
             ax.text(start / 1e6, -k, f" {label}", va="center", ha="left",
-                    fontproperties=FP, fontsize=8, color=PALETTE["dgrey"])
+                    fontproperties=FP, fontsize=8, color=PALETTE["dgray"])
         ax.set_ylim(-len(features), 1)
         ax.set_yticks([])
         for s in ("top", "right", "left"):
@@ -107,7 +107,7 @@ def metaprofile(bigwigs: dict, regions: pd.DataFrame, flank: int = 2_000,
                 nbins: int = 100, groups: dict | None = None,
                 colors: dict | None = None, ax=None, title: str | None = None,
                 center: str = "midpoint"):
-    """Average signal centred on a set of regions."""
+    """Average signal centered on a set of regions."""
     import matplotlib.pyplot as plt
     reg = as_intervals(regions)
     if center == "midpoint":
@@ -148,7 +148,7 @@ def metaprofile(bigwigs: dict, regions: pd.DataFrame, flank: int = 2_000,
         for g, samples in groups.items():
             M = np.vstack([prof[s] for s in samples if s in prof])
             mu, sd = M.mean(0), M.std(0)
-            c = palette.get(g, PALETTE["grey"])
+            c = palette.get(g, PALETTE["gray"])
             ax.plot(x, mu, color=c, lw=1.8, label=g)
             ax.fill_between(x, mu - sd, mu + sd, color=c, alpha=.20, lw=0)
         ax.legend(prop=FP, fontsize=9, frameon=False)
@@ -157,7 +157,7 @@ def metaprofile(bigwigs: dict, regions: pd.DataFrame, flank: int = 2_000,
             ax.plot(x, v, lw=1.4, label=s)
         ax.legend(prop=FP, fontsize=8, frameon=False)
     ax.axvline(0, c="k", lw=.6, ls=":")
-    _clean(ax, title or f"n = {len(reg):,} regions", "distance from centre (kb)", "mean signal")
+    _clean(ax, title or f"n = {len(reg):,} regions", "distance from center (kb)", "mean signal")
     return fig, ax
 
 

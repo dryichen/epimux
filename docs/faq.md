@@ -39,7 +39,7 @@ meaningful.
 ### `consensus_peaks` refuses to run
 
 You asked for `method="replicated"` with unequal replicate numbers. That rule
-favours the group with more replicates and manufactures apparent gains. Either
+favors the group with more replicates and manufactures apparent gains. Either
 `balance="subsample"` (recommended) or `balance="ignore"` if you have a reason.
 
 ### Hi-C functions raise ImportError
@@ -66,9 +66,9 @@ Set `EPIMUX_FONT` to a `.ttf`/`.ttc`, or call
 sans-serif is used. PDFs embed Type 42 fonts so text stays editable in
 Illustrator.
 
-### How do I use spike-in normalisation with `deseq2_de`?
+### How do I use spike-in normalization with `deseq2_de`?
 
-Normalise first, then pass the adjusted matrix:
+Normalize first, then pass the adjusted matrix:
 
 ```python
 sf = ep.spike_in_factors(spike_counts, target_lib)

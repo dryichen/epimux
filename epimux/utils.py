@@ -36,7 +36,7 @@ LOG = get_logger()
 
 
 # --------------------------------------------------------------------------
-# reading / normalising interval tables
+# reading / normalizing interval tables
 # --------------------------------------------------------------------------
 def read_bed(path, name_col: bool = True) -> pd.DataFrame:
     """Read a BED-like file into chrom/start/end[/name]."""
@@ -168,7 +168,7 @@ def midpoint_bin(df: pd.DataFrame, resolution: int) -> pd.Series:
 
 
 # --------------------------------------------------------------------------
-# normalisation helpers
+# normalization helpers
 # --------------------------------------------------------------------------
 def cpm(counts: np.ndarray) -> np.ndarray:
     lib = counts.sum(axis=0, keepdims=True).astype(float)

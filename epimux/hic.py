@@ -1,6 +1,6 @@
 """Hi-C analytics beyond compartments and insulation.
 
-Contact maps are usually the deepest, least normalisation-fragile assay in a
+Contact maps are usually the deepest, least normalization-fragile assay in a
 multi-omic study, and they need no spike-in.  When a ChIP is too shallow to
 quantify a binding change, the functional consequence is often still measurable
 here -- boundary insulation, loop strength, compartment segregation.
@@ -102,7 +102,7 @@ def compartment_strength(S: np.ndarray, frac: float = 0.2) -> float:
 # --------------------------------------------------------------------------
 def pileup(source, features: pd.DataFrame, resolution: int = 10_000,
            flank: int = 200_000, expected: bool = True) -> np.ndarray:
-    """On-diagonal pileup (average map centred on each feature)."""
+    """On-diagonal pileup (average map centered on each feature)."""
     clr = _clr(source, resolution)
     w = flank // resolution
     size = 2 * w + 1
@@ -143,7 +143,7 @@ def apa(source, loops: pd.DataFrame, resolution: int = 10_000,
     """Aggregate peak analysis over off-diagonal loop anchors.
 
     ``loops`` needs chrom1/start1/end1/chrom2/start2/end2 (or chrom/start/end
-    twice).  Returns (matrix, score) where score is centre / corner mean.
+    twice).  Returns (matrix, score) where score is center / corner mean.
     """
     clr = _clr(source, resolution)
     w = flank // resolution
@@ -172,10 +172,10 @@ def apa(source, loops: pd.DataFrame, resolution: int = 10_000,
     mat = acc / n
     c = size // 2
     k = max(1, size // 6)
-    centre = np.nanmean(mat[c - k:c + k + 1, c - k:c + k + 1])
+    center = np.nanmean(mat[c - k:c + k + 1, c - k:c + k + 1])
     corner = np.nanmean(mat[-2 * k:, :2 * k])
-    LOG.info(f"APA over {n:,} loops; score = {centre / corner:.2f}")
-    return mat, float(centre / corner)
+    LOG.info(f"APA over {n:,} loops; score = {center / corner:.2f}")
+    return mat, float(center / corner)
 
 
 # --------------------------------------------------------------------------

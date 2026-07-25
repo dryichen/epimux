@@ -1,4 +1,4 @@
-"""Tests for normalisation, annotation, enrichment, linking and CLI."""
+"""Tests for normalization, annotation, enrichment, linking and CLI."""
 import numpy as np
 import pandas as pd
 import pytest
@@ -32,7 +32,7 @@ def tss():
     })
 
 
-# --------------------------------------------------------------- normalisation
+# --------------------------------------------------------------- normalization
 def test_size_factors_correct_depth(counts):
     sf = ep.median_of_ratios(counts)
     ko = [s for s in counts.columns if s.startswith("KO")]
@@ -73,7 +73,7 @@ def test_assess_global_shift_flags_consistent_offset():
     }, index=[f"f{i}" for i in range(n)])
     ctr = Contrast(ref="WT", test="KO",
                    group={"WT": ["WT_R1", "WT_R2"], "KO": ["KO_R1", "KO_R2"]})
-    # depth-normalised, a uniform 2x gain looks like NO shift (that is the trap)
+    # depth-normalized, a uniform 2x gain looks like NO shift (that is the trap)
     out = ep.assess_global_shift(df, ctr)
     assert "consistent_shift" in out and "interpretation" in out
 
@@ -196,3 +196,29 @@ def test_covariate_design_rejects_missing(counts):
     cov = pd.DataFrame({"batch": ["a", "b"]}, index=["WT_R1", "WT_R2"])
     with pytest.raises(ValueError, match="covariates must cover"):
         ep.deseq2_de(counts, ctr, covariates=cov)
+
+
+# ------------------------------------------------------------------- fonts
+def test_bold_and_italic_actually_render():
+    """A .ttc exposes only face 0 to FontProperties(fname=...), which silently
+    drops bold and italic. set_style must register every face so emphasis works."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from epimux import plotting as pl
+
+    fp = pl.set_style()
+
+    def render(**kw):
+        fig = plt.figure(figsize=(2, 0.5))
+        fig.text(0.05, 0.3, "ATAC 572", fontproperties=fp, fontsize=20, **kw)
+        fig.canvas.draw()
+        arr = np.asarray(fig.canvas.buffer_rgba()).copy()
+        plt.close(fig)
+        return arr
+
+    plain = render()
+    assert not np.array_equal(plain, render(fontweight="bold")), \
+        "fontweight='bold' renders identically to normal -- font faces not registered"
+    assert not np.array_equal(plain, render(style="italic")), \
+        "style='italic' renders identically to normal -- font faces not registered"

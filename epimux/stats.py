@@ -6,7 +6,7 @@ Every engine returns the same schema::
 
 and ``log2FC`` is **always** ``log2(test / ref)``.  This is enforced by passing a
 :class:`~epimux.utils.Contrast` rather than a factor, and is re-verified against
-raw normalised values by :func:`epimux.audit.check_direction`.
+raw normalized values by :func:`epimux.audit.check_direction`.
 """
 from __future__ import annotations
 

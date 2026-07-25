@@ -2,7 +2,7 @@
 
 Keeps the interpretation of an element list honest -- "distal enhancers" that
 turn out to be promoters, or a super-enhancer set that is really a peak-density
-artefact, change conclusions more often than people expect.
+artifact, change conclusions more often than people expect.
 """
 from __future__ import annotations
 

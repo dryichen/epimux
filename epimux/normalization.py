@@ -1,4 +1,4 @@
-"""Normalisation, including the spike-in case.
+"""Normalization, including the spike-in case.
 
 Standard size-factor methods (median-of-ratios, TMM, quantile) all assume that
 *most features do not change*.  When that assumption breaks -- a global gain or
@@ -11,7 +11,7 @@ Two consequences are implemented here:
   to derive size factors that survive a global shift;
 * :func:`assess_global_shift` estimates whether a global shift is *plausible*
   from the data alone, so a study without spike-ins at least knows whether its
-  normalisation assumption is at risk.
+  normalization assumption is at risk.
 """
 from __future__ import annotations
 
@@ -121,7 +121,7 @@ def reference_normalize(counts: pd.DataFrame, reference_features) -> pd.Series:
     sub = counts.loc[idx].to_numpy(dtype=float)
     lib = sub.sum(0)
     f = lib / np.exp(np.mean(np.log(lib)))
-    LOG.info(f"reference-set normalisation on {len(idx):,} features")
+    LOG.info(f"reference-set normalization on {len(idx):,} features")
     return pd.Series(f, index=counts.columns)
 
 
@@ -135,11 +135,11 @@ def apply_factors(counts: pd.DataFrame, factors: pd.Series) -> pd.DataFrame:
 # --------------------------------------------------------------------------
 def assess_global_shift(counts: pd.DataFrame, contrast, frip: dict | None = None,
                         quantiles=(0.25, 0.5, 0.75, 0.9)) -> dict:
-    """Is a genome-wide shift plausible, and would normalisation hide it?
+    """Is a genome-wide shift plausible, and would normalization hide it?
 
-    Compares raw per-sample signal distributions (depth-normalised only) between
+    Compares raw per-sample signal distributions (depth-normalized only) between
     the two groups.  A consistent offset across quantiles is what a true global
-    change looks like -- and is exactly what size-factor normalisation removes.
+    change looks like -- and is exactly what size-factor normalization removes.
     """
     ref, test = contrast.ref_samples, contrast.test_samples
     X = counts.to_numpy(dtype=float)
@@ -165,11 +165,11 @@ def assess_global_shift(counts: pd.DataFrame, contrast, frip: dict | None = None
     if consistent:
         LOG.warning(
             "a consistent shift is present across all quantiles "
-            f"(mean log2 {shifts.mean():+.2f}). Size-factor normalisation will remove it. "
+            f"(mean log2 {shifts.mean():+.2f}). Size-factor normalization will remove it. "
             "Without spike-ins the global magnitude cannot be recovered; only the "
             "relative redistribution of signal is interpretable.")
     out["interpretation"] = (
         "global shift plausible -- spike-ins required to quantify it; "
         "report relative redistribution only" if consistent else
-        "no consistent global shift detected; standard normalisation is reasonable")
+        "no consistent global shift detected; standard normalization is reasonable")
     return out

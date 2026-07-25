@@ -7,7 +7,7 @@ Every check in here exists because it caught a real, published-grade error:
     A contrast built from an R-style factor silently computed ``log2(WT/KO)``
     because factor levels sort alphabetically.  Every direction in the analysis
     was reversed and nothing downstream complained.  This check compares the
-    reported ``log2FC`` against raw normalised means and fails loudly.
+    reported ``log2FC`` against raw normalized means and fails loudly.
 
 ``positive_control``
     A bigWig/limma pipeline reported "no change" for a histone mark.  It was a
@@ -21,7 +21,7 @@ Every check in here exists because it caught a real, published-grade error:
 
 ``efficiency_balance``
     Systematically different ChIP efficiency (FRiP) between genotypes can
-    manufacture a directional bias that survives depth normalisation.  This
+    manufacture a directional bias that survives depth normalization.  This
     reports the imbalance and, crucially, whether the observed effect runs
     *with* the technical bias (dangerous) or *against* it (conservative).
 
@@ -88,7 +88,7 @@ class AuditReport:
 def check_direction(result: pd.DataFrame, counts: pd.DataFrame,
                     contrast: Contrast, kind: str = "count",
                     top_n: int = 2000, min_corr: float = 0.5) -> AuditResult:
-    """Verify the sign of ``log2FC`` against raw normalised values.
+    """Verify the sign of ``log2FC`` against raw normalized values.
 
     This is the single most important check in the package.  It recomputes a
     naive ``log2(mean(test) / mean(ref))`` from the raw matrix and correlates it
@@ -134,7 +134,7 @@ def check_direction(result: pd.DataFrame, counts: pd.DataFrame,
     if r < min_corr:
         return AuditResult("check_direction", "warn",
                            f"weak agreement with raw values (corr {r:+.3f}); "
-                           "check normalisation", detail)
+                           "check normalization", detail)
     return AuditResult("check_direction", "pass",
                        f"sign verified against raw values (corr {r:+.3f})", detail)
 
