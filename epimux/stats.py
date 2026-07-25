@@ -46,10 +46,14 @@ def bh_fdr(p: np.ndarray) -> np.ndarray:
 # --------------------------------------------------------------------------
 def deseq2_de(counts: pd.DataFrame, contrast: Contrast,
               min_count: int = 10, min_frac: float = 0.5,
+              covariates: pd.DataFrame | None = None,
               n_cpus: int = 4) -> pd.DataFrame:
     """Negative-binomial DE via PyDESeq2, with an exact-sign contrast.
 
     ``counts`` : features x samples (raw integer counts).
+    ``covariates`` : optional samples x variables frame (e.g. batch, sex, donor).
+    Each column is added to the design as ``~ cov1 + cov2 + condition`` so the
+    contrast is adjusted for it; the tested coefficient is still condition.
     Features failing the expression filter are returned with NaN statistics so
     the output always aligns with the input index.
     """
@@ -71,9 +75,18 @@ def deseq2_de(counts: pd.DataFrame, contrast: Contrast,
         raise ImportError("pydeseq2 is required for count-based DE") from e
 
     meta = contrast.design().loc[samples]
+    design = "~condition"
+    if covariates is not None:
+        cov = covariates.reindex(samples)
+        if cov.isna().any().any():
+            raise ValueError("covariates must cover every sample in the contrast")
+        for c in cov.columns:
+            meta[c] = cov[c].astype(str).to_numpy()
+        design = "~" + " + ".join(list(cov.columns) + ["condition"])
+        LOG.info(f"adjusted design: {design}")
     # PyDESeq2 wants samples x genes
     dds = DeseqDataSet(counts=sub.loc[keep].T.astype(int), metadata=meta,
-                       design="~condition", refit_cooks=True, quiet=True)
+                       design=design, refit_cooks=True, quiet=True)
     dds.deseq2()
     st = DeseqStats(dds, contrast=["condition", contrast.test, contrast.ref], quiet=True)
     st.summary()
@@ -84,6 +97,7 @@ def deseq2_de(counts: pd.DataFrame, contrast: Contrast,
     res.loc[r.index, "pvalue"] = r["pvalue"].to_numpy()
     res.loc[r.index, "padj"] = r["padj"].to_numpy()
     res.attrs["engine"] = "pydeseq2"
+    res.attrs["design"] = design
     res.attrs["contrast"] = repr(contrast)
     return res
 

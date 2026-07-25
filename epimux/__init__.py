@@ -32,10 +32,17 @@ from .core import Dataset
 from .coupling import classify_elements, concordance, couple
 from .linking import abc_link, aggregate_to_genes, nearest_gene
 from .modules import find_modules, module_enrichment, module_profile
+from .annotation import (annotate_tss, classify_context, context_composition,
+                         distance_enrichment, stitch_super_enhancers)
+from .enrichment import (gc_matched_background, motif_enrichment,
+                         overlap_enrichment, pathway_enrichment)
+from .normalization import (apply_factors, assess_global_shift, median_of_ratios,
+                            quantile_normalize, reference_normalize,
+                            spike_in_factors, tmm)
 from .stats import bh_fdr, deseq2_de, methylation_de, moderated_t_de
 from .utils import Contrast, overlap, read_bed
 
-from . import plotting
+from . import hic, plotting, tracks
 
 __version__ = "0.1.0"
 
@@ -49,5 +56,14 @@ __all__ = [
     "couple", "classify_elements", "concordance",
     "find_modules", "module_profile", "module_enrichment",
     "abc_link", "nearest_gene", "aggregate_to_genes",
-    "plotting", "__version__",
+    # normalisation (incl. spike-in)
+    "median_of_ratios", "tmm", "quantile_normalize", "spike_in_factors",
+    "reference_normalize", "apply_factors", "assess_global_shift",
+    # annotation
+    "annotate_tss", "classify_context", "context_composition",
+    "stitch_super_enhancers", "distance_enrichment",
+    # enrichment
+    "pathway_enrichment", "motif_enrichment", "overlap_enrichment",
+    "gc_matched_background",
+    "plotting", "tracks", "hic", "__version__",
 ]

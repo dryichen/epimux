@@ -95,8 +95,29 @@ Hi-C features need `cooler`, `cooltools`, `bioframe`; bigWig needs `pyBigWig`.
 | `coupling` | `couple`, `classify_elements`, `concordance` |
 | `linking` | `abc_link`, `nearest_gene`, `aggregate_to_genes` |
 | `modules` | `find_modules`, `module_profile`, `module_enrichment` |
+| `normalization` | median-of-ratios, TMM, quantile, **spike-in**, internal-reference, global-shift assessment |
+| `annotation` | TSS distance, promoter/proximal/distal context, ROSE-style super-enhancers |
+| `enrichment` | pathways (background-aware), motifs (GC-matched), interval overlap with a shuffling null |
+| `hic` | P(s) + log-derivative, saddle & compartment strength, pileup, APA, boundary strength, differential insulation |
 | `plotting` | MA, volcano, coupling, heatmap, PCA, state bars, audit traffic-lights |
+| `tracks` | browser-style locus panels, metaprofiles, per-region heatmaps |
 | `report` | one self-contained, theme-aware HTML file |
+
+## Normalisation when a global shift is possible
+
+Size-factor methods assume most features do not change. When that breaks — a
+genome-wide gain or loss of a mark — they absorb the effect and hand you a
+confident null:
+
+```python
+ep.assess_global_shift(counts, contrast, frip=frip)   # is the assumption at risk?
+sf = ep.spike_in_factors(spike_counts, target_lib)    # survives a global shift
+counts_norm = ep.apply_factors(counts, sf)
+```
+
+Without spike-ins, `reference_normalize` against a set you believe is invariant
+is a weaker but honest fallback — and `assess_global_shift` at least tells you
+when to stop claiming a magnitude.
 
 ## Hi-C without spike-in
 
@@ -107,6 +128,13 @@ need no spike-in and are usually deeply sequenced:
 ```python
 hic = ds.assays["HiC"]
 wt, ko = hic.insulation("WT"), hic.insulation("KO")
+d = ep.hic.differential_insulation(wt, ko, "WT", "KO", anchors=ctcf_peaks)
+
+decay = ep.hic.contact_decay("wt.mcool", resolution=20_000)
+sh    = ep.hic.extrusion_shoulder(decay)          # log-derivative of P(s)
+S, _  = ep.hic.saddle("wt.mcool", eigenvector, "WT")
+print(ep.hic.compartment_strength(S))             # (AA+BB)/2AB
+mat, score = ep.hic.apa("wt.mcool", loops)
 ```
 
 ## Citation
